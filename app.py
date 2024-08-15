@@ -1,7 +1,10 @@
 from flask import Flask, request, jsonify
 import json
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
+
 
 def cargar_datos():
     try:
@@ -42,4 +45,4 @@ def listar_usuarios():
     return jsonify(datos)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0")

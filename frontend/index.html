@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Usuarios</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        h1, h2 {
+            color: #5a76a7;
+        }
+
+        input[type="text"], button {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            border: none;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+        }
+
+        li button {
+            margin-left: 20px;
+            background-color: #dc3545;
+        }
+
+        li button:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Gestión de Usuarios</h1>
+    <div>
+        <h2>Insertar Usuario</h2>
+        <input type="text" id="userId" placeholder="ID">
+        <input type="text" id="userName" placeholder="Nombre">
+        <button onclick="insertarUsuario()">Insertar</button>
+    </div>
+    <div>
+        <h2>Listar Usuarios</h2>
+        <button onclick="listarUsuarios()">Listar</button>
+        <ul id="userList"></ul>
+    </div>
+    <script>
+        function insertarUsuario() {
+            const userId = document.getElementById('userId').value;
+            const userName = document.getElementById('userName').value;
+
+            fetch('http://localhost:5000/insertar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ id: userId, name: userName })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Usuario insertado: ' + JSON.stringify(data));
+                listarUsuarios(); // Actualizar la lista
+            })
+            .catch(error => alert('Error: ' + error));
+        }
+
+        function eliminarUsuario(userId) {
+            fetch(`http://localhost:5000/eliminar/${userId}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Respuesta: ' + JSON.stringify(data));
+                listarUsuarios(); // Actualizar la lista después de eliminar
+            })
+            .catch(error => alert('Error: ' + error));
+        }
+
+        function listarUsuarios() {
+            fetch('http://localhost:5000/listar')
+            .then(response => response.json())
+            .then(data => {
+                const userList = document.getElementById('userList');
+                userList.innerHTML = ''; // Limpiar lista actual
+                Object.values(data).forEach(user => {
+                    const li = document.createElement('li');
+                    li.textContent = `ID: ${user.id}, Nombre: ${user.name}`;
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = 'Eliminar';
+                    deleteButton.onclick = () => eliminarUsuario(user.id);
+                    li.appendChild(deleteButton);
+                    userList.appendChild(li);
+                });
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
